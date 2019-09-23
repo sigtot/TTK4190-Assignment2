@@ -1,6 +1,13 @@
 \section{Open loop analysis}
 
 \subsection{}
+Since the wind speed $\mathbf{V}_w$ is assumed zero, we have that the ground speed is
+\begin{equation}\begin{aligned}
+\label{eq:ground_air}
+\mathbf{V}_g = \mathbf{V}_a - \mathbf{V}_w = \mathbf{V}_a.
+\end{aligned}\end{equation}
+
+\subsection{}
 The definition of crab angle from REF:BEARD is
 \begin{equation}\begin{aligned}
 \chi_c \triangleq \chi - \psi
@@ -9,6 +16,15 @@ where $\chi$ is the course and $\psi$ is the heading. Since the wind speed is as
 \begin{equation}\begin{aligned}
 \beta = \chi - \psi.
 \end{aligned}\end{equation}
+We can also express this using the velocity of the aircraft. From equation (2.8) in REF:BEARD, we have that
+\begin{equation}\begin{aligned}
+\beta = \sin^{-1}\left(\frac{v_r}{\sqrt{u^2_r + v^2_r + w^2_r}}\right) = \sin^{-1}\left(\frac{v_r}{V_a}\right),
+\end{aligned}\end{equation}
+or since $\mathbf{V}_g = \mathbf{V}_a$,
+\begin{equation}\begin{aligned}
+\beta = \sin^{-1}\left(\frac{v_r}{V_g}\right).
+\end{aligned}\end{equation}
+
 
 \subsection{}
 \begin{figure}[ht]
