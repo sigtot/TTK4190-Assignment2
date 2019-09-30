@@ -39,19 +39,26 @@ are respectively
 \label{eq:freqanddamp}
 \omega_0 = \sqrt{Y_v N_r - N_v Y_r} \quad \text{and} \quad \zeta = -2\frac{Y_v + N_r}{\omega_0}.
 \end{aligned}\end{equation}
-Comparing the $\mathbf{A}$ matrix with equation (5.53) in REF:BEARD we get the numerical values
-\begin{align}
-Y_v &= -0.322, \\
-N_r &= -2.87, \\
-Y_v N_r &= 0.924, \\
-N_v Y_r = N_v V_a^* \cos \beta^* \frac{Y_r}{V_a^* \cos \beta^*} &= (-10.6)(0.028) \approx -0.30, \\
-\end{align}
-which we can then insert into \eqref{eq:freqanddamp} obtaining
+Following the same derivation as in REF:BEARD using the numerical values from the $\mathbf{A}$ matrix, we can find the expresion
 \begin{equation}\begin{aligned}
-\omega_0 \approx 1.1, \quad \zeta \approx 5.8.
+\begin{bmatrix}
+\dot \beta\\
+\dot r\\
+\end{bmatrix}
+=
+\begin{bmatrix}
+-0.322 & -1.12 \\
+6.87 & -0.32 \\
+\end{bmatrix}
+\begin{bmatrix}
+\beta\\
+r\\
+\end{bmatrix}
 \end{aligned}\end{equation}
-
-
+which has the eigenvalues $\lambda_1 = -0.321 + 2.77i$ and $\lambda_2 = -0.321, - 2.77i$. This yields the natural frequency and relative damping ratio
+\begin{equation}\begin{aligned}
+\omega_0 = \sqrt{\lambda_1 \lambda_2} \approx 2.79, \quad \text{and} \quad \zeta = -\frac{\lambda_1 + \lambda_2}{2} \approx 0.321.
+\end{aligned}\end{equation}
 
 \subsection{}
 \begin{figure}[ht]
