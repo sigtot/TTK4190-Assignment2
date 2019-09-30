@@ -12,7 +12,7 @@ k_p_phi = sign(a_phi_2) * delta_a_max / e_phi_max;
 k_d_phi = (2 * zetta_phi * w_n_phi - a_phi_1) / a_phi_2;
 
 sys = tf([a_phi_2], [1, a_phi_1 + a_phi_2 * k_d_phi, a_phi_2 * k_p_phi, 0]);
-k_i_phi = -100:100;
+k_i_phi = -pi:0.001:0;
 
 rlocus(sys, k_i_phi);
 
