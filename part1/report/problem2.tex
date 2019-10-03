@@ -1,2 +1,52 @@
 \section{Autopilot for course hold using aileron and successive loop closure}
 \subsection{}
+The transfer function relates $\delta_a$ and $p$ through an integrator. Therefore, we extract $\dot{p}$ from the state-space vector. 
+\begin{align*}
+    \dot{p} &= -10.6 \beta - 2.87 p + 0.46 r - 0.65 \delta_a \\
+    (s + 2.87) p &= - 0.65 \delta_a  + \frac{(-10.6 \beta + 0.46 r) \delta_a }{\delta_a} \\
+    \frac{p}{\delta_a} &= \frac{-0.65}{s + 2.87} + \frac{-10.6 \beta + 0.46 r}{(s + 2.87)\delta_a}
+\end{align*}
+
+Then, as this controller is concerned with the roll, we may assume: % that $\beta \approx 0$ and $\r \approx 0$. Therefore, we can conclude that $a_{\phi_1} = 2.87$ and $a_{\phi_2} = -0.65$
+\begin{align*}
+    \beta \approx 0 && r \approx 0
+\end{align*}
+And may conclude: 
+\begin{align*}
+    a_{\phi_1} = 2.87 && a_{\phi_2} = -0.65
+\end{align*}
+
+\subsection{}
+Using equations 6.7, 6.8 and 6.9 from \cite[page 100]{beard_mclain_2012}, we get: 
+
+\begin{align*}
+    k_{p_\phi} &= \frac{\delta_{a}^{\max}}{e_{\phi}^{\max}} sign(a_{\phi_2}) 
+    = - \frac{30 \degree}{15 \degree} sign(-0.65)
+    = -2 \\
+    \omega_{n_{\phi}} &= \sqrt{|a_{\phi_2}| \frac{\delta_a^{\max}}{e_{\phi}^{\max}}} 
+    = \sqrt{0.65 * \frac{30 \degree}{15 \degree}} 
+    \approx 1.140 \\
+    k_{d_\phi} &= \frac{2 \zeta_{\phi} \omega_{n_\phi} - a_{\phi_1}}{a_{\phi_2}} 
+    = \frac{2 * 0.707 * 1.140 - 2.87}{-0.65}
+    \approx 1.935
+\end{align*}
+
+Then using the Evans form from \cite[page 102]{beard_mclain_2012} and the $rlocus$ function from matlab, we get: 
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{.5\textwidth}
+      \centering
+      \includegraphics[width=.4\linewidth]{image1}
+      \caption{Root locus plot with range from $-100$ to $100$}
+      \label{fig:sub1}
+    \end{subfigure}%
+    \begin{subfigure}{.5\textwidth}
+      \centering
+      \includegraphics[width=.4\linewidth]{../matlab/}
+      \caption{Root locus plot with range from $-\pi$ to $0$}
+      \label{fig:root_locus_proper_range}
+    \end{subfigure}
+    \caption{}
+    \label{fig:root_locus}
+\end{figure}
