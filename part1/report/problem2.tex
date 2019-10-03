@@ -31,22 +31,21 @@ Using equations 6.7, 6.8 and 6.9 from \cite[page 100]{beard_mclain_2012}, we get
     \approx 1.935
 \end{align*}
 
-Then using the Evans form from \cite[page 102]{beard_mclain_2012} and the $rlocus$ function from matlab, we get: 
+Then using the Evans form from \cite[page 102]{beard_mclain_2012} and the $rlocus$ function from Matlab, we get: 
 
-\begin{figure}
-    \centering
-    \begin{subfigure}{.5\textwidth}
-      \centering
-      \includegraphics[width=.4\linewidth]{image1}
-      \caption{Root locus plot with range from $-100$ to $100$}
-      \label{fig:sub1}
-    \end{subfigure}%
-    \begin{subfigure}{.5\textwidth}
-      \centering
-      \includegraphics[width=.4\linewidth]{../matlab/}
-      \caption{Root locus plot with range from $-\pi$ to $0$}
-      \label{fig:root_locus_proper_range}
-    \end{subfigure}
-    \caption{}
-    \label{fig:root_locus}
+\subsection{}
+\begin{figure}[ht]
+	\centering
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/root_locus_k_i_phi}
+		\caption{caption..}
+		\label{fig:root_locus_large_range}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/root_locus_k_i_phi_interval_minus_pi_to_0}
+		\caption{caption..}
+		\label{fig:root_locus_proper_range}
+	\end{subfigure}
 \end{figure}
+
+From this figure, we can conclude that the range seems to be larger than 
