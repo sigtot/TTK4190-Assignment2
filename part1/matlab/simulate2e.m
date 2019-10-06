@@ -75,8 +75,6 @@ delta_a = 5;
 t           = Ts * (0:(K-1));
 % States
 chi         = zeros(1, K); 
-% p           = zeros(1, K); 
-% phi         = zeros(1, K); 
 x           = zeros(5, K);
 
 % Errors
@@ -92,8 +90,6 @@ phi_ref     = zeros(1, K);
 
 %% Initialization 
 chi(1)  = chi_0;
-% p(1)    = p_0;
-% phi(1)  = phi_0;
 x(:, 1) = [beta_0, phi_0, p_0, r_0, delta_a_0]';
 
 % steps from 30 to 20 to 10 to 0 degs
@@ -120,7 +116,6 @@ for k = 1:K
     
     if k < K
         % integrate states
-        % x(:, k + 1) = (eye(5) + A * Ts) * x(:, k) + B * delta_a_ref(k) * Ts + W * d * Ts;
         x(:, k + 1) = euler2(A * x(:, k) + B * delta_a_ref(k), x(:, k), Ts);
         chi(k + 1) = euler2((g / V_g) * tan(x(phi, k) + d) * cos(x(beta, k)), chi(k), Ts); 
         
