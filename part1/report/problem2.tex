@@ -38,12 +38,12 @@ Then using the Evans form from \cite[page 102]{beard_mclain_2012} and the $rlocu
 	\centering
 	\begin{subfigure}[b]{0.45\textwidth}
 		\includegraphics[width=\textwidth]{figures/root_locus_k_i_phi}
-		\caption{caption..}
+		\caption{Root locus with range $k_{i_\phi}$ from -100 to 100}
 		\label{fig:root_locus_large_range}
 	\end{subfigure}
 	\begin{subfigure}[b]{0.45\textwidth}
 		\includegraphics[width=\textwidth]{figures/root_locus_k_i_phi_interval_minus_pi_to_0}
-		\caption{caption..}
+		\caption{Root locus with range $k_{i_\phi}$ from -$\pi$ to 0}
 		\label{fig:root_locus_proper_range}
 	\end{subfigure}
 \end{figure}
@@ -66,4 +66,37 @@ Further, choosing a lower $\omega_{n_\chi}$ by using $W_\chi = 10$ we may set $\
 There doesn't seem like there's a need for an integrator for this model. The integrator is usually needed for removing a disturbance that enters before $\delta_a$ in Figure 1 of the assignment task. As there is no disturbance here, the only reason we'd need an integral term would be to stabilize the system, but we can see from the root-locus analysis that the system is stable for $k_{i_\phi} = 0$. Therefore, we may choose this value. 
 
 \subsection{}
+See the figures: 
 
+\begin{figure}[ht]
+	\centering
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/2d_chi_course}
+		\caption{The course and course reference $\chi$}
+		\label{fig:2d_chi_course}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/2d_delta_a_aileron}
+		\caption{The aileron with saturation $\delta_a$}
+		\label{fig:2d_delta_a_aileron}
+	\end{subfigure}
+\end{figure}
+
+The results seem decent in general, and we can note that the integral term for $\phi$ was unnecessary, as discussed earlier. 
+
+\subsection{}
+See the figures: 
+
+\begin{figure}[ht]
+	\centering
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/2e_chi_course}
+		\caption{The course and course reference $\chi$}
+		\label{fig:2e_chi_course}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/2e_delta_a_aileron}
+		\caption{The aileron with saturation $\delta_a$}
+		\label{fig:2e_delta_a_aileron}
+	\end{subfigure}
+\end{figure}
