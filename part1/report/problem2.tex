@@ -31,9 +31,8 @@ Using equations 6.7, 6.8 and 6.9 from \cite[page 100]{beard_mclain_2012}, we get
     \approx 1.935
 \end{align*}
 
-Then using the Evans form from \cite[page 102]{beard_mclain_2012} and the $rlocus$ function from Matlab, we get: 
+Then using the Evans form from \cite[page 102]{beard_mclain_2012} and the $rlocus$ function from Matlab, we get find \figref{fig:root_locus_large_range} and \figref{fig:root_locus_proper_range}. 
 
-\subsection{}
 \begin{figure}[ht]
 	\centering
 	\begin{subfigure}[b]{0.45\textwidth}
@@ -66,7 +65,6 @@ Further, choosing a lower $\omega_{n_\chi}$ by using $W_\chi = 10$ we may set $\
 There doesn't seem like there's a need for an integrator for this model. The integrator is usually needed for removing a disturbance that enters before $\delta_a$ in Figure 1 of the assignment task. As there is no disturbance here, the only reason we'd need an integral term would be to stabilize the system, but we can see from the root-locus analysis that the system is stable for $k_{i_\phi} = 0$. Therefore, we may choose this value. 
 
 \subsection{}
-See the figures: 
 
 \begin{figure}[ht]
 	\centering
@@ -82,10 +80,9 @@ See the figures:
 	\end{subfigure}
 \end{figure}
 
-The results seem decent in general, and we can note that the integral term for $\phi$ was unnecessary, as discussed earlier. 
+The results seem good and well controlled, and we can note that the integral term for $\phi$ was unnecessary, as discussed earlier. 
 
 \subsection{}
-See the figures: 
 
 \begin{figure}[ht]
 	\centering
@@ -100,3 +97,8 @@ See the figures:
 		\label{fig:2e_delta_a_aileron}
 	\end{subfigure}
 \end{figure}
+
+As we can see when comparing the figures, especially the courses \figref{fig:2d_chi_course} and \figref{fig:2e_chi_course}, the simplified model reproduces the true dynamics very well. 
+
+\subsection{}
+Integrator windup doesn't seem like a problem in these simulations. However, if it was, a standard method for handling this would be to have a certain cutoff value for the integrator. Using this we may reset (set to zero) any integrator which are too large. 
