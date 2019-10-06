@@ -111,6 +111,29 @@ for k = 1:K
 end
 
 %% Plotting
+% Course (Chi)
+fig1 = figure(1); clf;
+plot(t, rad2deg(chi), t, rad2deg(chi_ref));
+legend('Course (Chi)', 'Course reference');
+ylabel('Course [deg]'); 
+xlabel('Time [s]');
+grid on; 
 
+set(fig1, 'Units', 'Inches');
+pos1 = get(fig1, 'Position');
+set(fig1, 'PaperPositionMode', 'Auto', 'PaperUnits', 'Inches', 'PaperSize', [pos1(3), pos1(4)]);
+print(fig1, '2d_chi_course', '-depsc', '-r0');
 
+% Aileron (delta_a)
+fig2 = figure(2); clf;
+plot(t, rad2deg(delta_a), t, rad2deg(delta_a_max) * ones(1, K), t, - rad2deg(delta_a_max) * ones(1, K)); 
+legend('Aileron', 'Aileron positive saturation', 'Aileron negative saturation'); 
+ylabel('Aileron [deg]');
+xlabel('Time [s]');
+ylim([-rad2deg(delta_a_max) * 1.1, rad2deg(delta_a_max) * 1.1]); % increase view by 10% 
+grid on; 
 
+set(fig2, 'Units', 'Inches');
+pos1 = get(fig2, 'Position');
+set(fig2, 'PaperPositionMode', 'Auto', 'PaperUnits', 'Inches', 'PaperSize', [pos1(3), pos1(4)]);
+print(fig2, '2d_delta_a_aileron', '-depsc', '-r0');
