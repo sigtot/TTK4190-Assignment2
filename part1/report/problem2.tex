@@ -101,8 +101,10 @@ The results seem good and well controlled, and we can note that the integral ter
 As we can see when comparing the figures, especially the courses \figref{fig:2d_chi_course} and \figref{fig:2e_chi_course}, the simplified model reproduces the true dynamics very well. The system is still stable, and the values still converge quite quickly towards the reference points. 
 
 \subsection{}
-Integrator windup doesn't seem like a problem in these simulations. It is caused by a large error over time causing the input to saturate. One method for handling this would be to have a certain cutoff value for the integrator. Using this we may reset (set to zero) any integrator which are too large. Another method would be to calculate both the saturated and unsaturated inputs, and then incrementing the integrator by a proportion of the input difference: 
+Integrator windup doesn't seem like a problem in these simulations. It is caused by a large error over time causing the input to saturate. One method for handling this would be to have a certain cutoff value for the integrator. Using this we may reset (set to zero) any integrator which are too large. Another, arguably better, method would be to calculate both the saturated and unsaturated inputs, and then incrementing the integrator by a proportion of the input difference: 
 
 \begin{align*}
 	\Delta I = \frac{1}{k_i} (u - u_{\text{unsat}})
 \end{align*}
+
+This will end up subtracting the exact amount needed so that the input can be kept at the saturation point, rather than keep increasing the longer the input is saturated. 
