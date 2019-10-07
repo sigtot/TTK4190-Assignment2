@@ -1,6 +1,6 @@
 %% Clear
 clear; close all;
-to_plot = false;
+to_plot = true;
 to_print = false;
 %% Constants
 % Global constants 
@@ -82,12 +82,14 @@ x           = zeros(5, K);
 e_chi       = zeros(1, K);
 e_chi_int   = zeros(1, K);
 e_phi       = zeros(1, K);
+e_phi_unsat = zeros(1, K);
 e_phi_int   = zeros(1, K);
 
 % References
-delta_a_ref = zeros(1, K);
-chi_ref     = zeros(1, K);
-phi_ref     = zeros(1, K);
+delta_a_ref         = zeros(1, K);
+delta_a_ref_unsat   = zeros(1, K);
+chi_ref             = zeros(1, K);
+phi_ref             = zeros(1, K);
 
 %% Initialization 
 chi(1)  = chi_0;
@@ -108,21 +110,38 @@ for k = 1:K
     phi_ref(k) = k_i_chi * e_chi_int(k) + k_p_chi * e_chi(k); 
     
     % Error in Phi
-    e_phi(k) = phi_ref(k) - x(phi, k);
-    e_phi(k) = min(e_phi_max, max(-e_phi_max, e_phi(k))); % abs(e_phi) <= e_phi_max
+    e_phi_unsat(k) = phi_ref(k) - x(phi, k);
+    e_phi(k) = min(e_phi_max, max(-e_phi_max, e_phi_unsat(k))); % abs(e_phi) <= e_phi_max
     
     % Delta_a^c, set based on PID-controller with error in Phi
-    delta_a_ref(k) = k_i_phi * e_phi_int(k) + k_p_phi * e_phi(k) - k_d_phi * x(p, k);
-    delta_a_ref(k) = min(delta_a_max, max(-delta_a_max, delta_a_ref(k))); % abs(delta_a) <= delta_a_max
+    delta_a_ref_unsat(k) = k_i_phi * e_phi_int(k) + k_p_phi * e_phi(k) - k_d_phi * x(p, k);
+    delta_a_ref(k) = min(delta_a_max, max(-delta_a_max, delta_a_ref_unsat(k))); % abs(delta_a) <= delta_a_max
     
     if k < K
         % integrate states
-        x(:, k + 1) = euler2(A * x(:, k) + B * delta_a_ref(k), x(:, k), Ts);
-        chi(k + 1) = euler2((g / V_g) * tan(x(phi, k) + d) * cos(x(beta, k)), chi(k), Ts); 
+        % x(:, k + 1) = euler2(A * x(:, k) + B * delta_a_ref(k), x(:, k), Ts);
+        x(p, k + 1) = euler2(a_phi_2 * delta_a_ref(k) - a_phi_1 * x(p, k), x(p, k), Ts);
+        x(phi, k + 1) = euler2(x(p, k), x(phi, k), Ts);
+        chi(k + 1) = euler2((g / V_g) * (x(phi, k) + d), chi(k), Ts);
+        % chi(k + 1) = euler2((g / V_g) * tan(x(phi, k) + d) * cos(x(beta, k)), chi(k), Ts); 
         
         % integrate errors
-        e_chi_int(k + 1) = euler2(e_chi(k), e_chi_int(k), Ts);
-        e_phi_int(k + 1) = euler2(e_phi(k), e_phi_int(k), Ts);
+        if delta_a_ref(k) == delta_a_ref_unsat(k)
+            e_chi_int(k + 1) = euler2(e_chi(k), e_chi_int(k), Ts);
+        else
+            e_chi_int(k + 1) = e_chi_int(k);
+        end
+        if e_phi(k) == e_phi_unsat(k)
+            e_phi_int(k + 1) = euler2(e_phi(k), e_phi_int(k), Ts);
+        else
+            e_phi_int(k + 1) = e_phi_int(k);
+        end
+%         if k_i_chi ~= 0
+%             e_chi_int(k + 1) = euler2((1/k_i_chi) * (e_phi(k) - e_phi_unsat(k)), e_chi_int(k + 1), Ts);
+%         end
+%         if k_i_phi ~= 0
+%             e_phi_int(k + 1) = euler2((1/k_i_phi) * (delta_a_ref(k) - delta_a_ref_unsat(k)), e_phi_int(k + 1), Ts); 
+%         end
     end
 end
 
@@ -135,14 +154,14 @@ if to_plot
     ylabel('Course [deg]'); 
     xlabel('Time [s]');
     grid on; 
-
+    
     if to_print
         set(fig1, 'Units', 'Inches');
         pos1 = get(fig1, 'Position');
         set(fig1, 'PaperPositionMode', 'Auto', 'PaperUnits', 'Inches', 'PaperSize', [pos1(3), pos1(4)]);
-        print(fig1, '2e_chi_course', '-depsc', '-r0');
+        print(fig1, '2f_chi_course', '-depsc', '-r0');
     end
-
+        
     % Aileron (delta_a)
     fig2 = figure(2); clf;
     plot(t, rad2deg(delta_a_ref), t, rad2deg(delta_a_max) * ones(1, K), t, - rad2deg(delta_a_max) * ones(1, K)); 
@@ -156,6 +175,6 @@ if to_plot
         set(fig2, 'Units', 'Inches');
         pos1 = get(fig2, 'Position');
         set(fig2, 'PaperPositionMode', 'Auto', 'PaperUnits', 'Inches', 'PaperSize', [pos1(3), pos1(4)]);
-        print(fig2, '2e_delta_a_aileron', '-depsc', '-r0');
+        print(fig2, '2f_delta_a_aileron', '-depsc', '-r0');
     end
 end
