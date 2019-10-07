@@ -101,10 +101,30 @@ The results seem good and well controlled, and we can note that the integral ter
 As we can see when comparing the figures, especially the courses \figref{fig:2d_chi_course} and \figref{fig:2e_chi_course}, the simplified model reproduces the true dynamics very well. The system is still stable, and the values still converge quite quickly towards the reference points. 
 
 \subsection{}
-Integrator windup doesn't seem like a problem in these simulations. It is caused by a large error over time causing the input to saturate. One method for handling this would be to have a certain cutoff value for the integrator. Using this we may reset (set to zero) any integrator which are too large. Another, arguably better, method would be to calculate both the saturated and unsaturated inputs, and then incrementing the integrator by a proportion of the input difference: 
+Integrator windup doesn't seem like a big problem in these simulations, though we can see the overshoot in \figref{fig:2e_chi_course} and \figref{fig:2d_chi_course}. This is due to the integrator windup. This is caused by a large error over time causing the input to saturate. 
+
+One method for handling this could be to turn the integrator off while the input is saturated. Thereby the integrator will not integrate up any error due to saturation. Another method could be to have a certain cutoff value for the integrator. Using this we may reset (set to zero) any integrator which are too large. 
+
+Another method still would be to calculate both the saturated and unsaturated inputs, and then incrementing the integrator by a proportion of the input difference: 
 
 \begin{align*}
 	\Delta I = \frac{1}{k_i} (u - u_{\text{unsat}})
 \end{align*}
 
 This will end up subtracting the exact amount needed so that the input can be kept at the saturation point, rather than keep increasing the longer the input is saturated. 
+
+Implementing the first method (not increasing the integrator while saturated), we can see the results in \figref{fig:2f_chi_course} and \figref{fig:2f_delta_a_aileron}. This is not exactly the results we'd expect, as the integrator still seems to jump whenever there's a saturation. We've further tested the other methods, but we still get a slight \textit{dip} in \figref{fig:2f_chi_course}.
+
+\begin{figure}[ht]
+	\centering
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/2f_chi_course}
+		\caption{The course and course reference $\chi$}
+		\label{fig:2f_chi_course}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/2f_delta_a_aileron}
+		\caption{The aileron with saturation $\delta_a$}
+		\label{fig:2f_delta_a_aileron}
+	\end{subfigure}
+\end{figure}
