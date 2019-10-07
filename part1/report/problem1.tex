@@ -79,6 +79,21 @@ r = \frac{-6.87 \frac{0.65}{10.6} - 0.02}{s - (6.87 \frac{0.46}{10.6} -0.32)} \d
 \end{aligned}\end{equation}
 meaning that the spiral-mode pole is in $\lambda = -0.022$ and hence the mode is actually stable! It should be noted however that this is only by a slight margin. Modifying the airplane ever so slightly can therefore make the spiral mode unstable. \cite{nasa} seems to argue that the spiral divergence mode appears in aircraft with strong directional (longitudal) stability but weak lateral stability. As such, this might be the case for this specific aircraft.
 
+\subsection{Roll Mode}
+The dynamics of $p$ are
+\begin{equation}\begin{aligned}
+\dot p = -10.6 \beta - 2.87 p + 0.46 r - 0.65 \delta_a.
+\end{aligned}\end{equation}
+During the roll mode, we assume $\beta = r = 0$, which yields
+\begin{equation}\begin{aligned}
+\dot p = -2.87 p - 0.65 \delta_a.
+\end{aligned}\end{equation}
+This in turn yields the Laplace-domain dynamics
+\begin{equation}\begin{aligned}
+p = - \frac{0.65}{s + 2.87} \delta_a.
+\end{aligned}\end{equation}
+As such, the pole in this case is in $\lambda = -2.87$ i.e. the roll mode is also stable, and it is \textit{much} faster than the spiral divergence mode.
+
 % \subsection{}
 % \begin{figure}[ht]
 % 	\centering
