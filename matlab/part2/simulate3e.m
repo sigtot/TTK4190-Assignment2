@@ -23,6 +23,10 @@ C = [1, 0, 0, 0, 0;
      0, 0, 1, 0, 0;
      0, 0, 0, 1, 0];
 
+% Measurement
+C_m = [0, 0, 1, 0, 0; 
+       0, 0, 0, 1, 0]; 
+ 
 % Kalman matrices
 A_k = [-0.322,  0.052,  0.028,  -1.12; 
         0,      0,      1,      -0.001; 
@@ -35,12 +39,14 @@ E_k = eye(4);
 
 % Noise
 % Process noise
+q_mean = zeros(4, 1); 
 q = 1; 
 Q = q * E_k; 
 
 % Measurement noise
-r_p = 1; 
-r_r = 1; 
+r_mean = zeros(2, 1); 
+r_p = 1e-5; 
+r_r = 1e-5; 
 R = [r_p, 0; 
      0,   r_r]; 
  
@@ -90,6 +96,7 @@ beta_hat_0  = 0;
 p_hat_0     = 0;
 phi_hat_0   = 0;
 r_hat_0     = 0; 
+P_hat_0     = eye(4); % zeros(4, 4); 
 
 % Indices
 beta    = 1;
@@ -106,6 +113,9 @@ chi         = zeros(1, K);
 x           = zeros(5, K);
 % Estimator
 x_hat       = zeros(4, K);
+P_hat       = zeros(4, 4, K); 
+% Measurement
+z           = zeros(2, K); 
 
 % Errors
 e_chi               = zeros(1, K);
@@ -123,20 +133,21 @@ chi_ref             = zeros(1, K);
 phi_ref             = zeros(1, K);
 
 %% Initialization 
-chi(1)      = chi_0;
-x(:, 1)     = [beta_0, phi_0, p_0, r_0, delta_a_0]';
-x_hat(:, 1) = [beta_hat_0, phi_hat_0, p_hat_0, r_hat_0]'; 
+chi(1)          = chi_0;
+x(:, 1)         = [beta_0, phi_0, p_0, r_0, delta_a_0]';
+x_hat(:, 1)     = [beta_hat_0, phi_hat_0, p_hat_0, r_hat_0]'; 
+P_hat(:, :, 1)  = P_hat_0; 
 
 % steps from 30 to 20 to 10 to 0 degs
-chi_ref(1:K/4) = deg2rad(20); 
-chi_ref(K/4:K/2) = deg2rad(10); 
-chi_ref(K/2:3*K/4) = deg2rad(5); 
+chi_ref(1:K/4)      = deg2rad(20); 
+chi_ref(K/4:K/2)    = deg2rad(10); 
+chi_ref(K/2:3*K/4)  = deg2rad(5); 
 
 %% Simulation
 
 for k = 1:K
     % Error in Chi
-    e_chi(k) = chi_ref(k) - chi(k);
+    e_chi(k) = chi_ref(k) - chi(k); % TODO: Find out: Should chi still be used like this? 
     
     % Phi_c, set based on PI-controller with error in Chi
     phi_ref(k) = k_i_chi * e_chi_int(k) + k_p_chi * e_chi(k); 
@@ -151,12 +162,20 @@ for k = 1:K
     [delta_a_ref(k), delta_a_saturated(k)] = saturate(delta_a_ref_unsat(k), delta_a_max); 
     % delta_a_ref(k) = min(delta_a_max, max(-delta_a_max, delta_a_ref_unsat(k))); % abs(delta_a) <= delta_a_max
     
+    % Measurement
+    z(:, k) = C_m * x(:, k) + mvnrnd(r_mean, R)'; 
+    
     if k < K
-        % integrate states
-        x(:, k + 1) = euler2(A * x(:, k) + B * delta_a_ref(k), x(:, k), Ts);
+        % Simulate actual system based on calculated input
+        x(:, k + 1) = euler2(A * x(:, k) + B * delta_a_ref(k) + mvnrnd(q_mean, Q)', x(:, k), Ts);
         chi(k + 1) = euler2((g / V_g) * tan(x(phi, k) + d) * cos(x(beta, k)), chi(k), Ts); 
         
-        % integrate errors
+        
+        % Kalman filter
+%         [x_post, P_post, x_pred, P_pred, v_inno, S_inno] = ...
+%             KalmanFilter(x_prev, P_prev, u_prev, z, A_k, B_k, C_k, Q, R);
+        
+        % Integrate errors
         if e_phi_saturated(k)
             e_chi_int(k + 1) = e_chi_int(k);
         else
