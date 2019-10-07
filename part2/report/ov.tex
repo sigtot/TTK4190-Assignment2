@@ -1,0 +1,60 @@
+%% This is the main file and you use this file to organize your assignment.
+
+\documentclass[a4paper]{article}
+\usepackage[margin=3cm]{geometry} 	   % Choose your margin here.
+\usepackage{amsmath}
+\usepackage{gensymb}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{siunitx}
+
+\renewcommand\thesection{Problem \arabic{section}}
+\renewcommand\thesubsection{\alph{subsection})}
+
+\newcommand{\figref}[1]{\figurename~\ref{#1}}
+
+\let\endtitlepage\relax						% Begin the text immidiately after the title page. Optional
+\setlength{\parindent}{0cm}				% Start paragraph without indent. Optional
+
+\begin{document}
+
+\lstset{language=Matlab,%
+    breaklines=true,%
+    morekeywords={matlab2tikz},
+    keywordstyle=\color{blue},%
+    morekeywords=[2]{1}, keywordstyle=[2]{\color{black}},
+    identifierstyle=\color{black},%
+    stringstyle=\color{mylilas},
+    commentstyle=\color{mygreen},%
+    showstringspaces=false,%without this there will be a symbol in the places where there is a space
+    numbers=left,%
+    numberstyle={\tiny \color{black}},% size of the numbers
+    numbersep=9pt, % this defines how far the numbers are from the text
+    emph=[1]{for, end, break}\emphstyle=[1]\color{red}, %some words to emphasise
+}
+
+\begin{titlepage}
+\begin{center}
+\Large TTK4190 Guidance and Control of Vehicles \\
+\vspace{10pt}
+Assignment 2 \\
+\vspace{10pt}
+\large Written Fall 2019 By Martin Gerhardsen and Sigurd Totland
+\end{center}
+\end{titlepage}
+
+\input{problem1}	% Use "\include" instead of "\input" if you want the section to start on a new page. "problem1" is a tex file included at this location in the document. It is possible to answer the whole assignment in the main file (paste everything from "problem1.tex" and "problem2.tex" here), but that restricts the readability. Therefore, one file is created for each problem.
+\include{problem2}
+
+\bibliographystyle{IEEEtran}
+\bibliography{bibliography.bib}
+
+\end{document}
