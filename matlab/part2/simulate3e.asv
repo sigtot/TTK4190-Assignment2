@@ -23,11 +23,26 @@ C = [1, 0, 0, 0, 0;
      0, 0, 1, 0, 0;
      0, 0, 0, 1, 0];
 
+% Kalman matrices
 A_k = [-0.322,  0.052,  0.028,  -1.12; 
         0,      0,      1,      -0.001; 
        -10.6,   0,     -2.87,    0.46; 
         6.87,   0,     -0.04,   -0.32]; 
-B_k = [0.002, 0, -0.65, 
+B_k = [0.002, 0, -0.65, -0.02]'; 
+C_k = [0, 0, 1, 0; 
+       0, 0, 0, 1]; 
+E_k = eye(4); 
+
+% Noise
+% Process noise
+q = 1; 
+Q = q * E_k; 
+
+% Measurement noise
+r_p = 1; 
+r_r = 1; 
+R = [r_p, 0; 
+     0,   r_r]; 
  
 % Task defined constants for saturation
 delta_a_max = abs(deg2rad(30.0));
@@ -61,13 +76,20 @@ w_n_chi = w_n_phi / W_chi;
 k_p_chi = 2 * zetta_chi * w_n_chi * V_g / g; 
 k_i_chi = w_n_chi^2 * V_g / g;
 
-% Initial values
+% Simulator initial values
 chi_0       = deg2rad(20);
 beta_0      = 0;
 p_0         = 0;
 phi_0       = 0;
 r_0         = 0; 
 delta_a_0   = 0; 
+
+% Estimator initial values
+chi_hat_0   = deg2rad(15); 
+beta_hat_0  = 0;
+p_hat_0     = 0;
+phi_hat_0   = 0;
+r_hat_0     = 0; 
 
 % Indices
 beta    = 1;
@@ -82,23 +104,28 @@ t           = Ts * (0:(K-1));
 % States
 chi         = zeros(1, K); 
 x           = zeros(5, K);
+% Estimator
+x_hat       = zeros(4, K);
 
 % Errors
-e_chi       = zeros(1, K);
-e_chi_int   = zeros(1, K);
-e_phi       = zeros(1, K);
-e_phi_unsat = zeros(1, K);
-e_phi_int   = zeros(1, K);
+e_chi               = zeros(1, K);
+e_chi_int           = zeros(1, K);
+e_phi               = zeros(1, K);
+e_phi_unsat         = zeros(1, K);
+e_phi_saturated     = false(1, K); 
+e_phi_int           = zeros(1, K);
 
 % References
 delta_a_ref         = zeros(1, K);
 delta_a_ref_unsat   = zeros(1, K);
+delta_a_saturated   = false(1, K); 
 chi_ref             = zeros(1, K);
 phi_ref             = zeros(1, K);
 
 %% Initialization 
-chi(1)  = chi_0;
-x(:, 1) = [beta_0, phi_0, p_0, r_0, delta_a_0]';
+chi(1)      = chi_0;
+x(:, 1)     = [beta_0, phi_0, p_0, r_0, delta_a_0]';
+x_hat(:, 1) = [beta_hat_0, phi_hat_0, p_hat_0, r_hat_0]'; 
 
 % steps from 30 to 20 to 10 to 0 degs
 chi_ref(1:K/4) = deg2rad(20); 
@@ -116,11 +143,13 @@ for k = 1:K
     
     % Error in Phi
     e_phi_unsat(k) = phi_ref(k) - x(phi, k);
-    e_phi(k) = min(e_phi_max, max(-e_phi_max, e_phi_unsat(k))); % abs(e_phi) <= e_phi_max
+    [e_phi(k), e_phi_saturated(k)] = saturate(e_phi_unsat(k), e_phi_max); 
+    % e_phi(k) = min(e_phi_max, max(-e_phi_max, e_phi_unsat(k))); % abs(e_phi) <= e_phi_max
     
     % Delta_a^c, set based on PID-controller with error in Phi
     delta_a_ref_unsat(k) = k_i_phi * e_phi_int(k) + k_p_phi * e_phi(k) - k_d_phi * x(p, k);
-    delta_a_ref(k) = min(delta_a_max, max(-delta_a_max, delta_a_ref_unsat(k))); % abs(delta_a) <= delta_a_max
+    [delta_a_ref(k), delta_a_saturated(k)] = saturate(delta_a_ref_unsat(k), delta_a_max); 
+    % delta_a_ref(k) = min(delta_a_max, max(-delta_a_max, delta_a_ref_unsat(k))); % abs(delta_a) <= delta_a_max
     
     if k < K
         % integrate states
@@ -131,13 +160,13 @@ for k = 1:K
         % chi(k + 1) = euler2((g / V_g) * tan(x(phi, k) + d) * cos(x(beta, k)), chi(k), Ts); 
         
         % integrate errors
-        if delta_a_ref(k) == delta_a_ref_unsat(k)
-            e_chi_int(k + 1) = euler2(e_chi(k), e_chi_int(k), Ts);
-        else
+        if e_phi_saturated(k)
             e_chi_int(k + 1) = e_chi_int(k);
+        else
+            e_chi_int(k + 1) = euler2(e_chi(k), e_chi_int(k), Ts);
         end
-        if e_phi(k) == e_phi_unsat(k)
-            e_phi_int(k + 1) = euler2(e_phi(k), e_phi_int(k), Ts);
+        if delta_a_saturated(k)
+            
         else
             e_phi_int(k + 1) = e_phi_int(k);
         end

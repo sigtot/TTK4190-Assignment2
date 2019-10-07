@@ -108,15 +108,17 @@ x           = zeros(5, K);
 x_hat       = zeros(4, K);
 
 % Errors
-e_chi       = zeros(1, K);
-e_chi_int   = zeros(1, K);
-e_phi       = zeros(1, K);
-e_phi_unsat = zeros(1, K);
-e_phi_int   = zeros(1, K);
+e_chi               = zeros(1, K);
+e_chi_int           = zeros(1, K);
+e_phi               = zeros(1, K);
+e_phi_unsat         = zeros(1, K);
+e_phi_saturated     = false(1, K); 
+e_phi_int           = zeros(1, K);
 
 % References
 delta_a_ref         = zeros(1, K);
 delta_a_ref_unsat   = zeros(1, K);
+delta_a_saturated   = false(1, K); 
 chi_ref             = zeros(1, K);
 phi_ref             = zeros(1, K);
 
@@ -141,37 +143,30 @@ for k = 1:K
     
     % Error in Phi
     e_phi_unsat(k) = phi_ref(k) - x(phi, k);
-    e_phi(k) = min(e_phi_max, max(-e_phi_max, e_phi_unsat(k))); % abs(e_phi) <= e_phi_max
+    [e_phi(k), e_phi_saturated(k)] = saturate(e_phi_unsat(k), e_phi_max); 
+    % e_phi(k) = min(e_phi_max, max(-e_phi_max, e_phi_unsat(k))); % abs(e_phi) <= e_phi_max
     
     % Delta_a^c, set based on PID-controller with error in Phi
     delta_a_ref_unsat(k) = k_i_phi * e_phi_int(k) + k_p_phi * e_phi(k) - k_d_phi * x(p, k);
-    delta_a_ref(k) = min(delta_a_max, max(-delta_a_max, delta_a_ref_unsat(k))); % abs(delta_a) <= delta_a_max
+    [delta_a_ref(k), delta_a_saturated(k)] = saturate(delta_a_ref_unsat(k), delta_a_max); 
+    % delta_a_ref(k) = min(delta_a_max, max(-delta_a_max, delta_a_ref_unsat(k))); % abs(delta_a) <= delta_a_max
     
     if k < K
         % integrate states
-        % x(:, k + 1) = euler2(A * x(:, k) + B * delta_a_ref(k), x(:, k), Ts);
-        x(p, k + 1) = euler2(a_phi_2 * delta_a_ref(k) - a_phi_1 * x(p, k), x(p, k), Ts);
-        x(phi, k + 1) = euler2(x(p, k), x(phi, k), Ts);
-        chi(k + 1) = euler2((g / V_g) * (x(phi, k) + d), chi(k), Ts);
-        % chi(k + 1) = euler2((g / V_g) * tan(x(phi, k) + d) * cos(x(beta, k)), chi(k), Ts); 
+        x(:, k + 1) = euler2(A * x(:, k) + B * delta_a_ref(k), x(:, k), Ts);
+        chi(k + 1) = euler2((g / V_g) * tan(x(phi, k) + d) * cos(x(beta, k)), chi(k), Ts); 
         
         % integrate errors
-        if delta_a_ref(k) == delta_a_ref_unsat(k)
-            e_chi_int(k + 1) = euler2(e_chi(k), e_chi_int(k), Ts);
-        else
+        if e_phi_saturated(k)
             e_chi_int(k + 1) = e_chi_int(k);
-        end
-        if e_phi(k) == e_phi_unsat(k)
-            e_phi_int(k + 1) = euler2(e_phi(k), e_phi_int(k), Ts);
         else
-            e_phi_int(k + 1) = e_phi_int(k);
+            e_chi_int(k + 1) = euler2(e_chi(k), e_chi_int(k), Ts);
         end
-%         if k_i_chi ~= 0
-%             e_chi_int(k + 1) = euler2((1/k_i_chi) * (e_phi(k) - e_phi_unsat(k)), e_chi_int(k + 1), Ts);
-%         end
-%         if k_i_phi ~= 0
-%             e_phi_int(k + 1) = euler2((1/k_i_phi) * (delta_a_ref(k) - delta_a_ref_unsat(k)), e_phi_int(k + 1), Ts); 
-%         end
+        if delta_a_saturated(k)
+            e_phi_int(k + 1) = e_phi_int(k);
+        else
+            e_phi_int(k + 1) = euler2(e_phi(k), e_phi_int(k), Ts);
+        end
     end
 end
 
