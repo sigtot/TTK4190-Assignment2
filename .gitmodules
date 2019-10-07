@@ -1,3 +1,6 @@
 [submodule "part1/matlab/MSS"]
 	path = part1/matlab/MSS
 	url = https://github.com/cybergalactic/MSS.git
+[submodule "matlab/MSS"]
+	path = matlab/MSS
+	url = https://github.com/cybergalactic/MSS.git
