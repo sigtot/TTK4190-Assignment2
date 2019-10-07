@@ -23,26 +23,11 @@ C = [1, 0, 0, 0, 0;
      0, 0, 1, 0, 0;
      0, 0, 0, 1, 0];
 
-% Kalman matrices
 A_k = [-0.322,  0.052,  0.028,  -1.12; 
         0,      0,      1,      -0.001; 
        -10.6,   0,     -2.87,    0.46; 
         6.87,   0,     -0.04,   -0.32]; 
-B_k = [0.002, 0, -0.65, -0.02]'; 
-C_k = [0, 0, 1, 0; 
-       0, 0, 0, 1]; 
-E_k = eye(4); 
-
-% Noise
-% Process noise
-q = 1; 
-Q = q * E_k; 
-
-% Measurement noise
-r_p = 1; 
-r_r = 1; 
-R = [r_p, 0; 
-     0,   r_r]; 
+B_k = [0.002, 0, -0.65, 
  
 % Task defined constants for saturation
 delta_a_max = abs(deg2rad(30.0));
