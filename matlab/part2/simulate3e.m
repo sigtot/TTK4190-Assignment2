@@ -76,13 +76,20 @@ w_n_chi = w_n_phi / W_chi;
 k_p_chi = 2 * zetta_chi * w_n_chi * V_g / g; 
 k_i_chi = w_n_chi^2 * V_g / g;
 
-% Initial values
+% Simulator initial values
 chi_0       = deg2rad(20);
 beta_0      = 0;
 p_0         = 0;
 phi_0       = 0;
 r_0         = 0; 
 delta_a_0   = 0; 
+
+% Estimator initial values
+chi_hat_0   = deg2rad(15); 
+beta_hat_0  = 0;
+p_hat_0     = 0;
+phi_hat_0   = 0;
+r_hat_0     = 0; 
 
 % Indices
 beta    = 1;
@@ -97,6 +104,8 @@ t           = Ts * (0:(K-1));
 % States
 chi         = zeros(1, K); 
 x           = zeros(5, K);
+% Estimator
+x_hat       = zeros(4, K);
 
 % Errors
 e_chi       = zeros(1, K);
@@ -112,8 +121,9 @@ chi_ref             = zeros(1, K);
 phi_ref             = zeros(1, K);
 
 %% Initialization 
-chi(1)  = chi_0;
-x(:, 1) = [beta_0, phi_0, p_0, r_0, delta_a_0]';
+chi(1)      = chi_0;
+x(:, 1)     = [beta_0, phi_0, p_0, r_0, delta_a_0]';
+x_hat(:, 1) = [beta_hat_0, phi_hat_0, p_hat_0, r_hat_0]'; 
 
 % steps from 30 to 20 to 10 to 0 degs
 chi_ref(1:K/4) = deg2rad(20); 
