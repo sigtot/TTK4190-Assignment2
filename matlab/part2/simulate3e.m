@@ -4,6 +4,7 @@ to_plot = true;
 to_print = false;
 %% Constants
 % Global constants 
+rng('default');
 V_a = 580 / 3.6; 
 V_g = V_a; % No wind
 g = 9.81;
@@ -27,28 +28,22 @@ C = [1, 0, 0, 0, 0;
 C_m = [0, 0, 1, 0, 0; 
        0, 0, 0, 1, 0]; 
  
-% Kalman matrices
-A_k = [-0.322,  0.052,  0.028,  -1.12; 
-        0,      0,      1,      -0.001; 
-       -10.6,   0,     -2.87,    0.46; 
-        6.87,   0,     -0.04,   -0.32]; 
-B_k = [0.002, 0, -0.65, -0.02]'; 
-C_k = [0, 0, 1, 0; 
-       0, 0, 0, 1]; 
-E_k = eye(4); 
+% % Kalman matrices
+% A_k = [-0.322,  0.052,  0.028,  -1.12; 
+%         0,      0,      1,      -0.001; 
+%        -10.6,   0,     -2.87,    0.46; 
+%         6.87,   0,     -0.04,   -0.32]; 
+% B_k = [0.002, 0, -0.65, -0.02]'; 
+% C_k = [0, 0, 1, 0; 
+%        0, 0, 0, 1]; 
+% E_k = eye(4); 
 
 % Noise
 % Process noise
-q_mean = zeros(4, 1); 
-q = 1; 
-Q = q * E_k; 
+Q = Ts * 1e-6 * diag([0.001, 1, 100, 10, 0]);
 
 % Measurement noise
-r_mean = zeros(2, 1); 
-r_p = 1e-5; 
-r_r = 1e-5; 
-R = [r_p, 0; 
-     0,   r_r]; 
+R = deg2rad(diag([0.2, 0.2]));
  
 % Task defined constants for saturation
 delta_a_max = abs(deg2rad(30.0));
@@ -91,12 +86,12 @@ r_0         = 0;
 delta_a_0   = 0; 
 
 % Estimator initial values
-chi_hat_0   = deg2rad(15); 
-beta_hat_0  = 0;
-p_hat_0     = 0;
-phi_hat_0   = 0;
-r_hat_0     = 0; 
-P_hat_0     = eye(4); % zeros(4, 4); 
+chi_bar_0   = deg2rad(15); 
+beta_bar_0  = 0;
+p_bar_0     = 0;
+phi_bar_0   = 0;
+r_bar_0     = 0; 
+P_bar_0     = eye(4); % zeros(4, 4); 
 
 % Indices
 beta    = 1;
@@ -114,6 +109,8 @@ x           = zeros(5, K);
 % Estimator
 x_hat       = zeros(4, K);
 P_hat       = zeros(4, 4, K); 
+x_bar       = zeros(4, K);
+P_bar       = zeros(4, 4, K); 
 % Measurement
 z           = zeros(2, K); 
 
@@ -135,8 +132,8 @@ phi_ref             = zeros(1, K);
 %% Initialization 
 chi(1)          = chi_0;
 x(:, 1)         = [beta_0, phi_0, p_0, r_0, delta_a_0]';
-x_hat(:, 1)     = [beta_hat_0, phi_hat_0, p_hat_0, r_hat_0]'; 
-P_hat(:, :, 1)  = P_hat_0; 
+x_bar(:, 1)     = [beta_bar_0, phi_bar_0, p_bar_0, r_bar_0]'; 
+P_bar(:, :, 1)  = P_bar_0; 
 
 % steps from 30 to 20 to 10 to 0 degs
 chi_ref(1:K/4)      = deg2rad(20); 
@@ -153,27 +150,37 @@ for k = 1:K
     phi_ref(k) = k_i_chi * e_chi_int(k) + k_p_chi * e_chi(k); 
     
     % Error in Phi
-    e_phi_unsat(k) = phi_ref(k) - x(phi, k);
+    % e_phi_unsat(k) = phi_ref(k) - x_hat(phi, k);
+    e_phi_unsat(k) = phi_ref(k) - x_bar(phi, k);
     [e_phi(k), e_phi_saturated(k)] = saturate(e_phi_unsat(k), e_phi_max); 
     % e_phi(k) = min(e_phi_max, max(-e_phi_max, e_phi_unsat(k))); % abs(e_phi) <= e_phi_max
     
     % Delta_a^c, set based on PID-controller with error in Phi
-    delta_a_ref_unsat(k) = k_i_phi * e_phi_int(k) + k_p_phi * e_phi(k) - k_d_phi * x(p, k);
+    % delta_a_ref_unsat(k) = k_i_phi * e_phi_int(k) + k_p_phi * e_phi(k) - k_d_phi * x_hat(p, k);
+    delta_a_ref_unsat(k) = k_i_phi * e_phi_int(k) + k_p_phi * e_phi(k) - k_d_phi * x_bar(p, k);
     [delta_a_ref(k), delta_a_saturated(k)] = saturate(delta_a_ref_unsat(k), delta_a_max); 
     % delta_a_ref(k) = min(delta_a_max, max(-delta_a_max, delta_a_ref_unsat(k))); % abs(delta_a) <= delta_a_max
     
     % Measurement
-    z(:, k) = C_m * x(:, k) + mvnrnd(r_mean, R)'; 
+    z(:, k) = C_m * x(:, k) + mvnrnd(zeros(1, 2), R)'; 
     
     if k < K
         % Simulate actual system based on calculated input
-        x(:, k + 1) = euler2(A * x(:, k) + B * delta_a_ref(k) + mvnrnd(q_mean, Q)', x(:, k), Ts);
+        x(:, k + 1) = euler2(A * x(:, k) + B * delta_a_ref(k) + mvnrnd(zeros(1, 5), Q)', x(:, k), Ts);
         chi(k + 1) = euler2((g / V_g) * tan(x(phi, k) + d) * cos(x(beta, k)), chi(k), Ts); 
         
         
         % Kalman filter
-%         [x_post, P_post, x_pred, P_pred, v_inno, S_inno] = ...
-%             KalmanFilter(x_prev, P_prev, u_prev, z, A_k, B_k, C_k, Q, R);
+        [x_bar_next, P_bar_next, x_hat_, P_hat_] = ...
+            KalmanFilter(x_bar(:, k), P_bar(:, :, k), delta_a_ref(k), z(:, k), Ts, R, Q(beta:r, beta:r));
+        x_hat(:, k) = x_hat_; 
+        P_hat(:, :, k) = P_hat_; 
+        x_bar(:, k + 1) = x_bar_next; 
+        P_bar(:, :, k + 1) = P_bar_next; 
+        % [x_post, P_post, x_pred, P_pred, v_inno, S_inno] = ...
+            % KalmanFilter(x_hat(beta:r, k), P_hat(beta:r, beta:r, k), delta_a_ref(k), z(:, k), A_k, B_k, C_k, Q, R);
+        % x_hat(:, k + 1) = x_post; 
+        % P_hat(:, :, k + 1) = P_post; 
         
         % Integrate errors
         if e_phi_saturated(k)
