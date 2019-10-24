@@ -2,13 +2,20 @@
 clear; close all;
 to_plot = true;
 to_print = true;
+
 only_kalman = true;
+sensor_failiure = true;
 
 if only_kalman
     plot_folder = '3f';
 else
     plot_folder = '3e';
 end
+
+if sensor_failiure
+    plot_folder = '3g';
+end
+
 base_folder = 'part2\figures\';
 %% Constants
 % Global constants 
@@ -51,7 +58,7 @@ C_m = [0, 0, 1, 0, 0;
 Q = Ts * 1e-6 * diag([0.001, 1, 100, 10, 0]);
 
 % Measurement noise
-R = deg2rad(diag([0.2, 0.2]));
+R = deg2rad(diag([0.2, 0.2])).^2;
  
 % Task defined constants for saturation
 delta_a_max = abs(deg2rad(30.0));
@@ -151,6 +158,14 @@ chi_ref(K/2:3*K/4)  = deg2rad(5);
 %% Simulation
 
 for k = 1:K
+    % Sensor failiure
+    if sensor_failiure
+        if k > K/2
+            R = 1e100 * R; 
+            sensor_failiure = false;
+        end
+    end
+    
     % Measurement
     z(:, k) = C_m * x(:, k) + mvnrnd(zeros(1, 2), R)'; 
     
@@ -277,7 +292,7 @@ if to_plot
     % Estimated, noisy and true roll rate
     fig5 = figure(5); clf; 
     plot(t, rad2deg(z(1, :)), t, rad2deg(x_bar(p, :)), t, rad2deg(x(p, :))); 
-    legend('Estimated roll rate', 'True roll rate', 'Noisy roll rate'); 
+    legend('Noisy roll rate', 'Estimated roll rate', 'True roll rate'); 
     ylabel('Roll rate angle [deg/s]');
     xlabel('Time [s]');
     grid on; 
@@ -292,7 +307,7 @@ if to_plot
     % Estimated, noisy and true yaw rate
     fig6 = figure(6); clf; 
     plot(t, rad2deg(z(2, :)), t, rad2deg(x_bar(r, :)), t, rad2deg(x(r, :))); 
-    legend('Estimated yaw rate', 'True yaw rate', 'Noisy yaw rate'); 
+    legend('Noisy yaw rate', 'Estimated yaw rate', 'True yaw rate'); 
     ylabel('Yaw rate angle [deg/s]');
     xlabel('Time [s]');
     grid on; 
