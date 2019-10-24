@@ -1,7 +1,15 @@
 %% Clear
 clear; close all;
 to_plot = true;
-to_print = false;
+to_print = true;
+only_kalman = true;
+
+if only_kalman
+    plot_folder = '3f';
+else
+    plot_folder = '3e';
+end
+base_folder = 'part2\figures\';
 %% Constants
 % Global constants 
 rng('default');
@@ -91,7 +99,7 @@ beta_bar_0  = 0;
 p_bar_0     = 0;
 phi_bar_0   = 0;
 r_bar_0     = 0; 
-P_bar_0     = eye(4); % zeros(4, 4); 
+P_bar_0     = 1e-5 * eye(4); % zeros(4, 4); 
 
 % Indices
 beta    = 1;
@@ -143,6 +151,9 @@ chi_ref(K/2:3*K/4)  = deg2rad(5);
 %% Simulation
 
 for k = 1:K
+    % Measurement
+    z(:, k) = C_m * x(:, k) + mvnrnd(zeros(1, 2), R)'; 
+    
     % Error in Chi
     e_chi(k) = chi_ref(k) - chi(k); % TODO: Find out: Should chi still be used like this? 
     
@@ -157,12 +168,13 @@ for k = 1:K
     
     % Delta_a^c, set based on PID-controller with error in Phi
     % delta_a_ref_unsat(k) = k_i_phi * e_phi_int(k) + k_p_phi * e_phi(k) - k_d_phi * x_hat(p, k);
-    delta_a_ref_unsat(k) = k_i_phi * e_phi_int(k) + k_p_phi * e_phi(k) - k_d_phi * x_bar(p, k);
+    if only_kalman
+        delta_a_ref_unsat(k) = k_i_phi * e_phi_int(k) + k_p_phi * e_phi(k) - k_d_phi * x_bar(p, k);
+    else
+        delta_a_ref_unsat(k) = k_i_phi * e_phi_int(k) + k_p_phi * e_phi(k) - k_d_phi * z(1, k);
+    end
     [delta_a_ref(k), delta_a_saturated(k)] = saturate(delta_a_ref_unsat(k), delta_a_max); 
     % delta_a_ref(k) = min(delta_a_max, max(-delta_a_max, delta_a_ref_unsat(k))); % abs(delta_a) <= delta_a_max
-    
-    % Measurement
-    z(:, k) = C_m * x(:, k) + mvnrnd(zeros(1, 2), R)'; 
     
     if k < K
         % Simulate actual system based on calculated input
@@ -197,7 +209,10 @@ for k = 1:K
 end
 
 %% Plotting
+% plot_folder = '3e';
 if to_plot
+    base_folder
+    plot_folder
     % Course (Chi)
     fig1 = figure(1); clf;
     plot(t, rad2deg(chi), t, rad2deg(chi_ref));
@@ -210,7 +225,7 @@ if to_plot
         set(fig1, 'Units', 'Inches');
         pos1 = get(fig1, 'Position');
         set(fig1, 'PaperPositionMode', 'Auto', 'PaperUnits', 'Inches', 'PaperSize', [pos1(3), pos1(4)]);
-        print(fig1, '3e_chi_course', '-depsc', '-r0');
+        print(fig1, strcat(base_folder, plot_folder, '/', 'chi_course'), '-depsc', '-r0');
     end
         
     % Aileron (delta_a)
@@ -226,6 +241,68 @@ if to_plot
         set(fig2, 'Units', 'Inches');
         pos1 = get(fig2, 'Position');
         set(fig2, 'PaperPositionMode', 'Auto', 'PaperUnits', 'Inches', 'PaperSize', [pos1(3), pos1(4)]);
-        print(fig2, '3e_delta_a_aileron', '-depsc', '-r0');
+        print(fig2, strcat(base_folder, plot_folder, '/delta_a_aileron'), '-depsc', '-r0');
+    end
+    
+    % Estimated and true sideslip angle
+    fig3 = figure(3); clf; 
+    plot(t, rad2deg(x_bar(beta, :)), t, rad2deg(x(beta, :))); 
+    legend('Estimated sideslip', 'True sideslip'); 
+    ylabel('Sideslip angle [deg]');
+    xlabel('Time [s]');
+    grid on; 
+    
+    if to_print
+        set(fig3, 'Units', 'Inches'); 
+        pos1 = get(fig3, 'Position'); 
+        set(fig3, 'PaperPositionMode', 'Auto', 'PaperUnits', 'Inches', 'PaperSize', [pos1(3), pos1(4)]);
+        print(fig3, strcat(base_folder, plot_folder, '/', 'beta_sideslip'), '-depsc', '-r0');
+    end
+    
+    % Estimated and true roll angle
+    fig4 = figure(4); clf; 
+    plot(t, rad2deg(x_bar(phi, :)), t, rad2deg(x(phi, :))); 
+    legend('Estimated roll', 'True roll'); 
+    ylabel('Roll angle [deg]');
+    xlabel('Time [s]');
+    grid on; 
+    
+    if to_print
+        set(fig4, 'Units', 'Inches'); 
+        pos1 = get(fig4, 'Position'); 
+        set(fig4, 'PaperPositionMode', 'Auto', 'PaperUnits', 'Inches', 'PaperSize', [pos1(3), pos1(4)]);
+        print(fig4, strcat(base_folder, plot_folder, '/', 'roll_phi'), '-depsc', '-r0');
+    end
+    
+    % Estimated, noisy and true roll rate
+    fig5 = figure(5); clf; 
+    plot(t, rad2deg(z(1, :)), t, rad2deg(x_bar(p, :)), t, rad2deg(x(p, :))); 
+    legend('Estimated roll rate', 'True roll rate', 'Noisy roll rate'); 
+    ylabel('Roll rate angle [deg/s]');
+    xlabel('Time [s]');
+    grid on; 
+    
+    if to_print
+        set(fig5, 'Units', 'Inches'); 
+        pos1 = get(fig5, 'Position'); 
+        set(fig5, 'PaperPositionMode', 'Auto', 'PaperUnits', 'Inches', 'PaperSize', [pos1(3), pos1(4)]);
+        print(fig5, strcat(base_folder, plot_folder, '/', 'roll_rate_p'), '-depsc', '-r0');
+    end
+    
+    % Estimated, noisy and true yaw rate
+    fig6 = figure(6); clf; 
+    plot(t, rad2deg(z(2, :)), t, rad2deg(x_bar(r, :)), t, rad2deg(x(r, :))); 
+    legend('Estimated yaw rate', 'True yaw rate', 'Noisy yaw rate'); 
+    ylabel('Yaw rate angle [deg/s]');
+    xlabel('Time [s]');
+    grid on; 
+    
+    if to_print
+        set(fig6, 'Units', 'Inches'); 
+        pos1 = get(fig6, 'Position'); 
+        set(fig6, 'PaperPositionMode', 'Auto', 'PaperUnits', 'Inches', 'PaperSize', [pos1(3), pos1(4)]);
+        print(fig6, strcat(base_folder, plot_folder, '/', 'yaw_rate_r'), '-depsc', '-r0');
     end
 end
+
+
