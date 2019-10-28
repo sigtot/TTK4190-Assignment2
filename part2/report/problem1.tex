@@ -14,6 +14,10 @@ MEMS rate gyros are the standard measurement devices for roll rate and yaw rate.
     \Upsilon_{\text{gyro}} = k_{\text{gyro}} \Omega + \beta_{\text{gyro}} + \eta_{\text{gyro}}'
 \end{equation}
 
+The types of noise which may affect a real system would usually be mechanical or electrical, like vibrations on the system and electro-magnetic noise on the measurement device. 
+
+The white noise assumption in the Kalman filter would obviously be a problem if the noise wasn't white. This would mean that the filter would try to fit the measurement to a wrong noise-model, and therefore the estimate would not \textit{necessarily} converge to the correct value. 
+
 % BEARD page 124
 
 % Typical measurement model for the sensor
