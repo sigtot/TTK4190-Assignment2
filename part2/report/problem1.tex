@@ -4,6 +4,7 @@
 The $\mathbf{Q}$ matrix is the process noise covariance matrix, which describes the covariance of the noise associated with the process itself.  The $\mathbf{R}$ matrix is the measurement, or observation, noise, which is associated with the noise which is introduced when a measurement is made. Finally, the $\mathbf{P}$ matrix is the estimation covariance, the covariance, or uncertainty of the given estimate.
 
 % dimensions
+All these matrices are square. The $\mathbf{Q}$ matrix has dimension according to the estimated state vector in our kalman filter, which in thise case makes it 4-by-4. The $R$ matrix likewise corresponds to the output vector and is hence 2-by-2. The covariance matrix $\mathbf{P}$ also corresponds to the state dimension and so is 4-by-4.
 
 \subsection{} % b
 MEMS rate gyros are the standard measurement devices for roll rate and yaw rate. These measurements can be modelled, as from \cite[p. 125]{beard_mclain_2012}, as \eqref{eq:gyro_model}. The parameters $k$ and $\beta$ are usually found experimentally to ensure that they are accurate, as they often are dependent on influences like temperature. $\eta$ is assumed to be zero-mean Gaussian noise. 
