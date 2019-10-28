@@ -27,9 +27,7 @@ The white noise assumption in the Kalman filter would obviously be a problem if 
 % Example of a situation where white noise assumption may be problematic
 
 \subsection{} % c
-The Kalman filter is the optimal linear state estimator when the model perfectly models the real system, the noise is entirely uncorrelated and the covariance of noise. 
-
-% Are these met?
+The Kalman filter is the optimal linear state estimator when the model perfectly models the real system, the noise is entirely white. uncorrelated with other noise or signals. Like mentioned in the previous subtask, we cannot generally assume the noise to be white for real life systems. For this simulation however, the generated noise is white, so in this case that assumption holds. Moreover, the model rarely depicts reality perfectly. The parameters are seldom known, and might even depend on environmental effects like wind and weather. Real systems also tend to have unmodeled dynamics, often non-linear, that we cannot capture in the linear model. In this case, we do have such unmodeled dynamics as the aileron dynamics (equation (3) in the assignment) are not modeled in the Kalman filter.
 
 \subsection{} % d
 
