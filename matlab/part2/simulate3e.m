@@ -14,6 +14,9 @@ end
 
 if sensor_failiure
     plot_folder = '3g';
+    if ~only_kalman
+        to_print = false;
+    end
 end
 
 base_folder = 'part2\figures\';
@@ -23,7 +26,7 @@ rng('default');
 V_a = 580 / 3.6; 
 V_g = V_a; % No wind
 g = 9.81;
-K = 50000;
+K = 50000/2;
 Ts = 0.01;
 d = deg2rad(1.5); 
 
@@ -194,7 +197,7 @@ for k = 1:K
     if k < K
         % Simulate actual system based on calculated input
         x(:, k + 1) = euler2(A * x(:, k) + B * delta_a_ref(k) + mvnrnd(zeros(1, 5), Q)', x(:, k), Ts);
-        chi(k + 1) = euler2((g / V_g) * tan(x(phi, k) + d) * cos(x(beta, k)), chi(k), Ts); 
+        chi(k + 1) = euler2((g / V_g) * tan(x_bar(phi, k) + d) * cos(x_bar(beta, k)), chi(k), Ts); 
         
         
         % Kalman filter
