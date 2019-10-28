@@ -6,7 +6,12 @@ The $\mathbf{Q}$ matrix is the process noise covariance matrix, which describes 
 % dimensions
 
 \subsection{} % b
-MEMS rate gyros are the standard measurement devices for roll rate and yaw rate. 
+MEMS rate gyros are the standard measurement devices for roll rate and yaw rate. These measurements can be modelled, as from \cite[p. 125]{beard_mclain_2012}, as \eqref{eq:gyro_model}. The parameters $k$ and $\beta$ are usually found experimentally to ensure that they are accurate, as they often are dependent on influences like temperature. $\eta$ is assumed to be zero-mean Gaussian noise. 
+
+\begin{equation}
+    \label{eq:gyro_model}
+    \Upsilon_{\text{gyro}} = k_{\text{gyro}} \Omega + \beta_{\text{gyro}} + \eta_{\text{gyro}}'
+\end{equation}
 
 % BEARD page 124
 
