@@ -30,5 +30,125 @@ The white noise assumption in the Kalman filter would obviously be a problem if 
 The Kalman filter is the optimal linear state estimator when the model perfectly models the real system, the noise is entirely white. uncorrelated with other noise or signals. Like mentioned in the previous subtask, we cannot generally assume the noise to be white for real life systems. For this simulation however, the generated noise is white, so in this case that assumption holds. Moreover, the model rarely depicts reality perfectly. The parameters are seldom known, and might even depend on environmental effects like wind and weather. Real systems also tend to have unmodeled dynamics, often non-linear, that we cannot capture in the linear model. In this case, we do have such unmodeled dynamics as the aileron dynamics (equation (3) in the assignment) are not modeled in the Kalman filter.
 
 \subsection{} % d
+The Kalman filter was implemented as a Matlab function according to the specifications found on BlackBoard. 
 
+\subsection{} % e
+See \figref{fig:3e}. 
 
+\begin{figure}[ht]
+	\centering
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3e/chi_course.eps}
+		\caption{Course and desired course. }
+		\label{fig:3e_chi_course}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3e/delta_a_aileron.eps}
+		\caption{Aileron input. }
+		\label{fig:3e_delta_a_aileron}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3e/beta_sideslip.eps}
+		\caption{Estimated and true sideslip. }
+		\label{fig:3e_beta_sideslip}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3e/roll_phi.eps}
+		\caption{Estimated and true roll angle. }
+		\label{fig:3e_roll_angle}
+    \end{subfigure}	
+    \begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3e/roll_rate_p.eps}
+		\caption{Noisy, true and estimated roll rate. }
+		\label{fig:3e_roll_rate_p}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3e/yaw_rate_r.eps}
+		\caption{Noisy, true and estimated yaw rate. }
+		\label{fig:3e_yaw_rate_r}
+	\end{subfigure}		
+	\caption{Figures for task 3e)}\label{fig:3e}
+\end{figure}
+
+\subsection{} % f
+See \figref{fig:3f}. The problem when using the noisy measurement directly is that the measurement (and the noise) is immediately introduced into the control system. This can be seen especially well by 
+
+% comment on the preformance of the course control
+
+% better? yes
+
+% theoretical: bandwidth of the estimator compared to the control loop
+
+\begin{figure}[ht]
+	\centering
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3f/chi_course.eps}
+		\caption{Course and desired course. }
+		\label{fig:3f_chi_course}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3f/delta_a_aileron.eps}
+		\caption{Aileron input. }
+		\label{fig:3f_delta_a_aileron}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3f/beta_sideslip.eps}
+		\caption{Estimated and true sideslip. }
+		\label{fig:3f_beta_sideslip}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3f/roll_phi.eps}
+		\caption{Estimated and true roll angle. }
+		\label{fig:3f_roll_angle}
+    \end{subfigure}	
+    \begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3f/roll_rate_p.eps}
+		\caption{Noisy, true and estimated roll rate. }
+		\label{fig:3f_roll_rate_p}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3f/yaw_rate_r.eps}
+		\caption{Noisy, true and estimated yaw rate. }
+		\label{fig:3f_yaw_rate_r}
+	\end{subfigure}		
+	\caption{Figures for task 3f)}\label{fig:3f}
+\end{figure}
+
+\subsection{} % g
+% should be some drift in the system, needed to decrease the number of steps to see. 
+
+\figref{fig:3g}
+\begin{figure}[ht]
+	\centering
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3g/chi_course.eps}
+		\caption{Course and desired course. }
+		\label{fig:3g_chi_course}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3g/delta_a_aileron.eps}
+		\caption{Aileron input. }
+		\label{fig:3g_delta_a_aileron}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3g/beta_sideslip.eps}
+		\caption{Estimated and true sideslip. }
+		\label{fig:3g_beta_sideslip}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3g/roll_phi.eps}
+		\caption{Estimated and true roll angle. }
+		\label{fig:3g_roll_angle}
+    \end{subfigure}	
+    \begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3g/roll_rate_p.eps}
+		\caption{Noisy, true and estimated roll rate. }
+		\label{fig:3g_roll_rate_p}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/3g/yaw_rate_r.eps}
+		\caption{Noisy, true and estimated yaw rate. }
+		\label{fig:3g_yaw_rate_r}
+	\end{subfigure}		
+	\caption{Figures for task 3g)}\label{fig:3g}
+\end{figure}
