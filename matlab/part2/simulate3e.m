@@ -26,7 +26,7 @@ rng('default');
 V_a = 580 / 3.6; 
 V_g = V_a; % No wind
 g = 9.81;
-K = 50000/2;
+K = 500000;
 Ts = 0.01;
 d = deg2rad(1.5); 
 
@@ -62,6 +62,10 @@ Q = Ts * 1e-6 * diag([0.001, 1, 100, 10, 0]);
 
 % Measurement noise
 R = deg2rad(diag([0.2, 0.2])).^2;
+
+% Kalman noise
+Q_k = 1.2 * Q(:, :);
+R_k = R(:, :);
  
 % Task defined constants for saturation
 delta_a_max = abs(deg2rad(30.0));
@@ -159,18 +163,17 @@ chi_ref(K/4:K/2)    = deg2rad(10);
 chi_ref(K/2:3*K/4)  = deg2rad(5); 
 
 %% Simulation
-
 for k = 1:K
     % Sensor failiure
     if sensor_failiure
         if k > K/2
-            R = 1e100 * R; 
+            R_k = 1e100 * R_k; 
             sensor_failiure = false;
         end
     end
     
     % Measurement
-    z(:, k) = C_m * x(:, k) + mvnrnd(zeros(1, 2), R)'; 
+    z(:, k) = C_m * x(:, k) + mvnrnd(zeros(1, 2), R.^(0.5))'; 
     
     % Error in Chi
     e_chi(k) = chi_ref(k) - chi(k); % TODO: Find out: Should chi still be used like this? 
@@ -196,13 +199,13 @@ for k = 1:K
     
     if k < K
         % Simulate actual system based on calculated input
-        x(:, k + 1) = euler2(A * x(:, k) + B * delta_a_ref(k) + mvnrnd(zeros(1, 5), Q)', x(:, k), Ts);
+        x(:, k + 1) = euler2(A * x(:, k) + B * delta_a_ref(k) + mvnrnd(zeros(1, 5), Q.^(0.5))', x(:, k), Ts);
         chi(k + 1) = euler2((g / V_g) * tan(x_bar(phi, k) + d) * cos(x_bar(beta, k)), chi(k), Ts); 
         
         
         % Kalman filter
         [x_bar_next, P_bar_next, x_hat_, P_hat_] = ...
-            KalmanFilter(x_bar(:, k), P_bar(:, :, k), delta_a_ref(k), z(:, k), Ts, R, Q(beta:r, beta:r));
+            KalmanFilter(x_bar(:, k), P_bar(:, :, k), delta_a_ref(k), z(:, k), Ts, R_k, Q_k(beta:r, beta:r));
         x_hat(:, k) = x_hat_; 
         P_hat(:, :, k) = P_hat_; 
         x_bar(:, k + 1) = x_bar_next; 
@@ -279,8 +282,15 @@ if to_plot
     
     % Estimated and true roll angle
     fig4 = figure(4); clf; 
-    plot(t, rad2deg(x_bar(phi, :)), t, rad2deg(x(phi, :))); 
-    legend('Estimated roll', 'True roll'); 
+    if sensor_failiure
+        plot(t, rad2deg(x_bar(phi, :)), t, rad2deg(x(phi, :)), t, abs(rad2deg(x_bar(phi, :)) - rad2deg(x(phi, :)))); 
+        legend('Estimated roll', 'True roll', 'Difference'); 
+    else
+        plot(t, rad2deg(x_bar(phi, :)), t, rad2deg(x(phi, :))); 
+        legend('Estimated roll', 'True roll'); 
+    end
+    % plot(t, rad2deg(x_bar(phi, :)), t, rad2deg(x(phi, :))); 
+    % legend('Estimated roll', 'True roll'); 
     ylabel('Roll angle [deg]');
     xlabel('Time [s]');
     grid on; 
