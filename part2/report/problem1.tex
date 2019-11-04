@@ -66,12 +66,12 @@ See \figref{fig:3e}.
 		\includegraphics[width=\textwidth]{figures/3e/yaw_rate_r.eps}
 		\caption{Noisy, true and estimated yaw rate. }
 		\label{fig:3e_yaw_rate_r}
-	\end{subfigure}		
+	\end{subfigure}
 	\caption{Figures for task 3e)}\label{fig:3e}
 \end{figure}
 
 \subsection{} % f
-See \figref{fig:3f}. The problem when using the noisy measurement directly is that the measurement (and the noise) is immediately introduced into the control system. This can be seen especially well by 
+See \figref{fig:3f}. The problem when using the noisy measurement directly is that the measurement (and the noise) is immediately introduced into the control system. The Kalman filter helps mitigate this, as we can see in the aileron inputs. With the noisy measurements directly inserted as in \figref{fig:3e}, the measurement noise gets propagated into the input, however with the Kalman filter, this noise is heavily decreased.
 
 % comment on the preformance of the course control
 
