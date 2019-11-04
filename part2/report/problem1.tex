@@ -71,7 +71,7 @@ See \figref{fig:3e}.
 \end{figure}
 
 \subsection{} % f
-See \figref{fig:3f}. The problem when using the noisy measurement directly is that the measurement (and the noise) is immediately introduced into the control system. The Kalman filter helps mitigate this, as we can see in the aileron inputs. With the noisy measurements directly inserted as in \figref{fig:3e}, the measurement noise gets propagated into the input, however with the Kalman filter, this noise is heavily decreased.
+See \figref{fig:3f}. The problem when using the noisy measurement directly is that the measurement (and the noise) is immediately introduced into the control system. The Kalman filter helps mitigate this, as we can see in the aileron inputs. With the noisy measurements directly inserted as in \figref{fig:3e}, the measurement noise gets propagated into the input, however with the Kalman filter, this noise is heavily decreased. It is important that the estimator has sufficiently higher bandwidth than the control loop to prevent instability. This is because the control loop depends on up to date estimates, and a slow estimator loop would make the controller lag behind.
 
 % comment on the preformance of the course control
 
